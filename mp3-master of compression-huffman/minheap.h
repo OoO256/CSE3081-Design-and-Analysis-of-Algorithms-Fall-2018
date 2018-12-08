@@ -1,3 +1,5 @@
+#pragma once
+
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -8,7 +10,7 @@ using namespace std;
 
 class node {
 public:
-	char c;
+	unsigned char c;
 	int count;
 	node* left;
 	node* right;
@@ -17,14 +19,14 @@ public:
 	node(const char c, const int count, node* l, node* r) : c(c), count(count), left(l), right(r) {};
 
 	bool operator < (const node& rhs) const {
-		if(this->count != rhs.count)
+		if (this->count != rhs.count)
 			return this->count < rhs.count;
 		else
 			return this->c < rhs.c;
 	}
 };
 
-using data_type = node*;
+using data_type = node * ;
 class min_heap
 {
 	// min heap 을 구현할 클래스
@@ -48,7 +50,7 @@ public:
 void min_heap::push(const data_type new_element) {
 	// 트리에 원소를 추가하는 함수
 	size++;
-	if(tree.size() < size + 1)
+	if (tree.size() < size + 1)
 	{
 		tree.resize(size + 1);
 	}
@@ -59,9 +61,9 @@ void min_heap::push(const data_type new_element) {
 
 	int curr = size;
 	// 현제 새 원소의 위치
-	while(curr != 1)
+	while (curr != 1)
 	{
-		if(
+		if (
 			*tree[curr] < *tree[curr / 2])
 			swap(tree[curr / 2], tree[curr]);
 		else
@@ -75,7 +77,7 @@ void min_heap::push(const data_type new_element) {
 data_type min_heap::pop() {
 	// min heap에서 원소를 pop하는 함수
 
-	if(size == 0)
+	if (size == 0)
 		return nullptr;
 	// 빈 트리인경우, 0을 출력한다
 
@@ -89,9 +91,9 @@ data_type min_heap::pop() {
 	// 현재 마지막 원소였던 원소가 있는 위치
 	int next = curr;
 	// 마지막 원소였던 원소가 다음으로 향할 위치
-	while(curr * 2 <= size)
+	while (curr * 2 <= size)
 	{
-		if(curr * 2 + 1 <= size && *tree[curr * 2 + 1] < *tree[curr * 2])
+		if (curr * 2 + 1 <= size && *tree[curr * 2 + 1] < *tree[curr * 2])
 		{
 			next = curr * 2 + 1;
 		}
@@ -103,7 +105,7 @@ data_type min_heap::pop() {
 		// next는 curr의 두 자식 중 최소를 가리킨다.
 		// next가 curr 보다 작으면 둘을 swap한다
 		// 그렇지 않으면 반복문을 종료한다.
-		if(*tree[next] < *tree[curr]) {
+		if (*tree[next] < *tree[curr]) {
 			swap(tree[curr], tree[next]);
 			curr = next;
 		}
@@ -115,4 +117,3 @@ data_type min_heap::pop() {
 	}
 	return top;
 }
-

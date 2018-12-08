@@ -1,3 +1,4 @@
+#pragma once
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -23,8 +24,8 @@ public:
 	ifstream input_file_stream;
 	ofstream output_file_stream;
 
-	compressor() { fill(char_count, char_count+256, 0); };
-	void compress(const string input_filename, const string output_filename);
+	compressor() { fill(char_count, char_count + 256, 0); };
+	void compress(const string& input_filename, const string& output_filename);
 	void construct_huffman_tree();
 	void write_huffman_tree();
 	void assign_bits_to_char();
@@ -34,21 +35,21 @@ public:
 };
 
 
-void compressor::construct_huffman_tree() {
+inline void compressor::construct_huffman_tree() {
 	char c;
-	while(input_file_stream.get(c))
+	while (input_file_stream.get(c))
 	{
-		char_count[c]++;
+		char_count[(unsigned char)(c)]++;
 	}
 
 	min_heap mh(0);
-	for(int i = 0; i < 256; i++)
+	for (int i = 0; i < 256; i++)
 	{
-		if(char_count[i] != 0)
+		if (char_count[i] != 0)
 			mh.push(new node(i, char_count[i], nullptr, nullptr));
 	}
 
-	while(mh.size >= 2)
+	while (mh.size >= 2)
 	{
 		node* left = mh.pop();
 		node* right = mh.pop();
@@ -56,25 +57,31 @@ void compressor::construct_huffman_tree() {
 		node* parent = new node(0, left->count + right->count, left, right);
 		mh.push(parent);
 	}
-
+	
 	huffman_root = mh.pop();
+
+	if (huffman_root->left == nullptr && huffman_root->right == nullptr)
+	{
+		// 단일 글자
+		huffman_root = new node(0, huffman_root->count, huffman_root, nullptr);
+	}
 }
 
 
-void compressor::dfs(node* curr, vector<bool>& bits) {
-	if(curr->right == nullptr && curr->left == nullptr)
+inline void compressor::dfs(node* curr, vector<bool>& bits) {
+	if (curr->right == nullptr && curr->left == nullptr)
 	{
 		bits_of_char[curr->c] = bits;
 		return;
 	}
 
-	if(curr->left != nullptr)
+	if (curr->left != nullptr)
 	{
 		bits.push_back(0);
 		dfs(curr->left, bits);
 		bits.pop_back();
 	}
-	if(curr->right != nullptr)
+	if (curr->right != nullptr)
 	{
 		bits.push_back(1);
 		dfs(curr->right, bits);
@@ -82,75 +89,79 @@ void compressor::dfs(node* curr, vector<bool>& bits) {
 	}
 }
 
-void compressor::assign_bits_to_char()
+inline void compressor::assign_bits_to_char()
 {
 	vector<bool> bits;
 	dfs(huffman_root, bits);
 }
 
-void compressor::write_huffman_tree() {
+inline void compressor::write_huffman_tree() {
 
 	int num_char = 0;
 
-	for(int i = 0; i < 256; i++)
+	for (int i = 0; i < 256; i++)
 	{
 		num_char += char_count[i] != 0;
 	}
 
-	output_file_stream << num_char;
+	output_file_stream << num_char << ' ';
 
 
 
-	for(int i = 0; i < 256; i++)
+	for (int i = 0; i < 256; i++)
 	{
-		if(char_count[i] != 0)
+		if (char_count[i] != 0)
 		{
-			output_file_stream << char(i) << char_count[i];
+			output_file_stream << char(i) << ' ' << char_count[i] <<' ';
 		}
 	}
 }
 
-void compressor::write_bits(vector<bool>& bits_for_write) {
-	while(bits_for_write.size() % 8 != 0)
+inline void compressor::write_bits(vector<bool>& bits_for_write) {
+	while (bits_for_write.size() % 8 != 0)
 		bits_for_write.push_back(0);
 
 
-	for(int i = 0; i + 7 < bits_for_write.size(); i+= 8)
+	for (int i = 0; i + 7 < bits_for_write.size(); i += 8)
 	{
 		unsigned char to_write = 0;
-		for(int j = 0; j < 8; j++)
+		for (int j = 0; j < 8; j++)
 		{
 			to_write <<= 1;
-			to_write |= bits_for_write[i+j];
+			to_write |= bits_for_write[i + j];
 		}
 		output_file_stream << to_write;
 	}
 }
 
-void compressor::compress(const string input_filename, const string output_filename)
+inline void compressor::compress(const string& input_filename, const string& output_filename)
 {
-	input_file_stream.open(input_filename, ifstream::in);
-	output_file_stream.open(output_filename, ifstream::out);
+	input_file_stream.open(input_filename, ifstream::binary);
+	output_file_stream.open(output_filename, ifstream::binary);
 
 	construct_huffman_tree();
 	write_huffman_tree();
+	output_file_stream << ' ';
 
 	assign_bits_to_char();
 
 	input_file_stream.close();
-	input_file_stream.open(input_filename, ifstream::in);
+	input_file_stream.open(input_filename, ifstream::binary);
 
 	char c;
 	vector<bool>bits_for_write;
+
 	int num_bits = 0;
-	while(input_file_stream.get(c))
+	while (input_file_stream.get(c))
 	{
-		for(auto i : bits_of_char[c])
+		for (auto i : bits_of_char[(unsigned char)(c)])
 		{
 			bits_for_write.push_back(i);
 			num_bits++;
 		}
 	}
-	output_file_stream << num_bits;
+	output_file_stream << num_bits << ' ';
 	write_bits(bits_for_write);
+	input_file_stream.close();
+	output_file_stream.close();
 }
