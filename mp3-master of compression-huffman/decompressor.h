@@ -1,4 +1,4 @@
-ï»¿#pragma once
+#pragma once
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -27,7 +27,7 @@ public:
 	void assign_bits_to_char();
 	void dfs(node* curr, vector<bool>& bits);
 	void write_bits(const vector<bool>& bits_for_write);
-	
+
 };
 
 inline void decompressor::construct_huffman_tree()
@@ -57,12 +57,19 @@ inline void decompressor::construct_huffman_tree()
 		mh.push(parent);
 	}
 
-	huffman_root = mh.pop();
-
-	if (huffman_root->left == nullptr && huffman_root->right == nullptr)
+	if (mh.size!=0)
 	{
-		// ë‹¨ì¼ ê¸€ìž
-		huffman_root = new node(0, huffman_root->count, huffman_root, nullptr);
+		huffman_root = mh.pop();
+
+		if (huffman_root->left == nullptr && huffman_root->right == nullptr)
+		{
+			// ´ÜÀÏ ±ÛÀÚ
+			huffman_root = new node(0, huffman_root->count, huffman_root, nullptr);
+		}
+	}
+	else
+	{
+		huffman_root = new node(0, 0, nullptr, nullptr);
 	}
 }
 
@@ -97,7 +104,7 @@ inline void decompressor::assign_bits_to_char()
 inline void decompressor::write_bits(const vector<bool>& bits_for_write)
 {
 	node* curr = huffman_root;
-	for (int i=0; i<bits_for_write.size(); i++)
+	for (int i = 0; i<bits_for_write.size(); i++)
 	{
 		if (bits_for_write[i] == false)
 		{
@@ -121,7 +128,17 @@ inline void decompressor::write_bits(const vector<bool>& bits_for_write)
 inline void decompressor::decompress(const string& input_filename, const string& output_filename)
 {
 	input_file_stream.open(input_filename, ifstream::binary);
-	output_file_stream.open(output_filename, ifstream::binary);
+	if (!input_file_stream.is_open())
+	{
+		cout << "The input file does not exist\n";
+		return;
+	}
+	output_file_stream.open(output_filename, ifstream::binary); 
+	if (!output_file_stream.is_open())
+	{
+		cout << "Fail to open the output file\n";
+		return;
+	}
 
 	construct_huffman_tree();
 	assign_bits_to_char();
@@ -133,12 +150,12 @@ inline void decompressor::decompress(const string& input_filename, const string&
 	input_file_stream >> num_bits;
 	input_file_stream.get(c);
 
-	for (int i = 0; i < ceil((double)num_bits/8);i++)
+	for (int i = 0; i < ceil((double)num_bits / 8); i++)
 	{
 		input_file_stream.get(c);
 
 		unsigned char uc = c;
-		for (int j = 0; j < 8 ; j++)
+		for (int j = 0; j < 8; j++)
 		{
 			bits_to_read.push_back(uc / 128);
 			uc <<= 1;

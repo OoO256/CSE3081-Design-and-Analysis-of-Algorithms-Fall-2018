@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -57,13 +57,20 @@ inline void compressor::construct_huffman_tree() {
 		node* parent = new node(0, left->count + right->count, left, right);
 		mh.push(parent);
 	}
-	
-	huffman_root = mh.pop();
 
-	if (huffman_root->left == nullptr && huffman_root->right == nullptr)
+	if (mh.size != 0)
 	{
-		// ´ÜÀÏ ±ÛÀÚ
-		huffman_root = new node(0, huffman_root->count, huffman_root, nullptr);
+		huffman_root = mh.pop();
+
+		if (huffman_root->left == nullptr && huffman_root->right == nullptr)
+		{
+			// Â´ÃœÃ€Ã Â±Ã›Ã€Ãš
+			huffman_root = new node(0, huffman_root->count, huffman_root, nullptr);
+		}
+	}
+	else
+	{
+		huffman_root = new node(0, 0, nullptr, nullptr);
 	}
 }
 
@@ -112,7 +119,7 @@ inline void compressor::write_huffman_tree() {
 	{
 		if (char_count[i] != 0)
 		{
-			output_file_stream << char(i) << ' ' << char_count[i] <<' ';
+			output_file_stream << char(i) << ' ' << char_count[i] << ' ';
 		}
 	}
 }
@@ -137,7 +144,17 @@ inline void compressor::write_bits(vector<bool>& bits_for_write) {
 inline void compressor::compress(const string& input_filename, const string& output_filename)
 {
 	input_file_stream.open(input_filename, ifstream::binary);
+	if (!input_file_stream.is_open())
+	{
+		cout << "The input file does not exist\n";
+		return;
+	}
 	output_file_stream.open(output_filename, ifstream::binary);
+	if (!output_file_stream.is_open())
+	{
+		cout << "Fail to open the output file\n";
+		return;
+	}
 
 	construct_huffman_tree();
 	write_huffman_tree();
