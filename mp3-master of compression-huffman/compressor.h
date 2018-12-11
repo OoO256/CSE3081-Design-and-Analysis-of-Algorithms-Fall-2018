@@ -70,7 +70,9 @@ inline void compressor::construct_huffman_tree() {
 	}
 	else
 	{
-		huffman_root = new node(0, 0, nullptr, nullptr);
+		input_file_stream.close();
+		output_file_stream.close();
+		exit(0);
 	}
 }
 
@@ -103,6 +105,8 @@ inline void compressor::assign_bits_to_char()
 }
 
 inline void compressor::write_huffman_tree() {
+
+
 
 	int num_char = 0;
 
