@@ -34,17 +34,33 @@ inline void decompressor::construct_huffman_tree()
 {
 	int num_char = 0;
 	input_file_stream >> num_char;
-	input_file_stream.get();
+	//input_file_stream.get();
 
 	min_heap mh(0);
 	char c;
+	char to_int;
 	int fre;
 	for (int i = 0; i < num_char; i++)
 	{
 		input_file_stream.get(c);
-		input_file_stream.get();
-		input_file_stream >> fre;
-		input_file_stream.get();
+
+
+		fre = 0;
+		input_file_stream.get(to_int);
+		fre += (unsigned char)to_int;
+		fre <<= 8;
+
+		input_file_stream.get(to_int);
+		fre += (unsigned char)to_int;
+		fre <<= 8;
+
+		input_file_stream.get(to_int);
+		fre += (unsigned char)to_int;
+		fre <<= 8;
+
+		input_file_stream.get(to_int);
+		fre += (unsigned char)to_int;
+
 		mh.push(new node(c, fre, nullptr, nullptr));
 	}
 
@@ -150,7 +166,7 @@ inline void decompressor::decompress(const string& input_filename, const string&
 	int num_bits;
 	char c;
 	input_file_stream >> num_bits;
-	input_file_stream.get(c);
+	//input_file_stream.get(c);
 
 	for (int i = 0; i < ceil((double)num_bits / 8); i++)
 	{
