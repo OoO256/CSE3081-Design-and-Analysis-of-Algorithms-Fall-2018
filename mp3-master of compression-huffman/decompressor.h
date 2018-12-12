@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -34,7 +34,8 @@ inline void decompressor::construct_huffman_tree()
 {
 	int num_char = 0;
 	input_file_stream >> num_char;
-	//input_file_stream.get();
+	input_file_stream.get();
+	// TODO
 
 	min_heap mh(0);
 	char c;
@@ -46,10 +47,6 @@ inline void decompressor::construct_huffman_tree()
 
 
 		fre = 0;
-		input_file_stream.get(to_int);
-		fre += (unsigned char)to_int;
-		fre <<= 8;
-
 		input_file_stream.get(to_int);
 		fre += (unsigned char)to_int;
 		fre <<= 8;
@@ -73,13 +70,13 @@ inline void decompressor::construct_huffman_tree()
 		mh.push(parent);
 	}
 
-	if (mh.size!=0)
+	if (mh.size != 0)
 	{
 		huffman_root = mh.pop();
 
 		if (huffman_root->left == nullptr && huffman_root->right == nullptr)
 		{
-			// ´ÜÀÏ ±ÛÀÚ
+			// Â´ÃœÃ€Ã Â±Ã›Ã€Ãš
 			huffman_root = new node(0, huffman_root->count, huffman_root, nullptr);
 		}
 	}
@@ -151,7 +148,7 @@ inline void decompressor::decompress(const string& input_filename, const string&
 		cout << "The input file does not exist\n";
 		return;
 	}
-	output_file_stream.open(output_filename, ifstream::binary); 
+	output_file_stream.open(output_filename, ifstream::binary);
 	if (!output_file_stream.is_open())
 	{
 		cout << "Fail to open the output file\n";
@@ -163,15 +160,14 @@ inline void decompressor::decompress(const string& input_filename, const string&
 
 
 	vector<bool>bits_to_read;
-	int num_bits;
+	int to_discard = 0;
 	char c;
-	input_file_stream >> num_bits;
+	input_file_stream.get(c);
+	to_discard = c;
 	//input_file_stream.get(c);
 
-	for (int i = 0; i < ceil((double)num_bits / 8); i++)
+	while(input_file_stream.get(c))
 	{
-		input_file_stream.get(c);
-
 		unsigned char uc = c;
 		for (int j = 0; j < 8; j++)
 		{
@@ -180,7 +176,7 @@ inline void decompressor::decompress(const string& input_filename, const string&
 		}
 	}
 
-	while (bits_to_read.size() != num_bits)
+	while (to_discard--)
 	{
 		bits_to_read.pop_back();
 	}

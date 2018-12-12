@@ -115,11 +115,9 @@ inline void compressor::write_huffman_tree() {
 		num_char += char_count[i] != 0;
 	}
 
-	//output_file_stream << num_char << ' ';
-	output_file_stream << num_char;
+	output_file_stream << num_char << ' ';
 
 
-	
 	unsigned char int_write;
 	for (int i = 0; i < 256; i++)
 	{
@@ -128,7 +126,7 @@ inline void compressor::write_huffman_tree() {
 			//output_file_stream << char(i) << ' ' << char_count[i] << ' ';
 			output_file_stream << char(i);
 
-			output_file_stream << (char)(char_count[i] >> 24);
+			//output_file_stream << (char)(char_count[i] >> 24);
 			output_file_stream << (char)(char_count[i] >> 16);
 			output_file_stream << (char)(char_count[i] >> 8);
 			output_file_stream << (char)(char_count[i]);
@@ -189,7 +187,10 @@ inline void compressor::compress(const string& input_filename, const string& out
 			num_bits++;
 		}
 	}
-	output_file_stream << num_bits;
+
+
+
+	output_file_stream << (char)((8 - num_bits%8)%8);
 	//output_file_stream << num_bits << ' ';
 	write_bits(bits_for_write);
 	input_file_stream.close();

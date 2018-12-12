@@ -4,6 +4,7 @@
 #include <functional>
 #include <fstream>
 #include <queue>
+#include <cstring>
 
 #include "compressor.h"
 #include "decompressor.h"
